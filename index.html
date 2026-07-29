@@ -3,216 +3,226 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>令和8年熊本地震 被害状況ダッシュボード（7/29 07:00基準）</title>
+<title>令和8年熊本地震 被害状況ダッシュボード（7/29 18:00時点）</title>
 <script>
-// ===================== DATA =====================
-// 情報基準時：2026年7月29日 07:00（消防庁第14報）ほか、各指標の時点は tp を参照
+// ===================== DATA（最新値） =====================
+// 情報基準時：2026年7月29日18:00（日本時間）に収集した各出典の最新値。
+// 指標ごとの「時点」は t フィールドを参照。null は「集計中」。
 const DATA = {
-  asOf: "7/29 7:00",
-  asOfISO: "2026-07-29T07:00+09:00",
-  version: "7/29 07:00基準版（消防庁第14報反映・自動更新）",
+  asOf: "7/29 18:00",
+  asOfISO: "2026-07-29T18:00+09:00",
+  version: "第7版（自動更新）",
   quake: {
     name: "令和8年熊本地震",
-    occurred: "2026-07-28T16:27+09:00",
+    occurred: "2026年7月28日 16:27ごろ",
     epicenter: "熊本県熊本地方",
-    magnitude: 7.1,
+    magnitude: "M7.1",
     depth: "約10km",
-    maxIntensity: "震度7（宇城市・氷川町）",
-    aftershock: "震度5弱を観測する地震が3回発生（29日4時台まで）。気象庁は「今後1週間程度、同程度の地震に注意」と呼びかけ"
+    maxShindo: "震度7（宇城市・氷川町）"
   },
-  deaths: 3,            // 消防庁第14報（7/29 7:00現在・熊本県）
-  missing: 19,          // 報道ベース（イオンモール熊本 約10人＋日本製紙八代 9人、29日朝時点）※公的な確定値は集計中
-  injuries: 29,         // 消防庁第14報：重傷6・軽傷23（熊本県28・鹿児島県1）
-  injuriesSevere: 6,
-  injuriesMinor: 23,
-  housing: { full: 3, half: 3, partial: 111 },  // 消防庁第14報（全壊3・半壊3〈大分県〉・一部破損111〈熊本県〉ほか床上浸水8・床下浸水1）※集計初期段階
-  outage: 35640,        // 九州電力公表（7/29 5:00現在、八代市・宇城市など）
-  water: 140000,        // 国交省集計・共同通信（7/28夜時点、17市町村。八代市は市域全域約6万戸、氷川町約1万戸を含む）
-  gas: 10481,           // 既報値（7/29 5:10版から更新なし）。参考：西部ガス（都市ガス）約500戸供給停止（7/28 18:30）、熊本市東区秋津町481戸（7/29 0:30）
-  telecom: "停電に伴う基地局停波が県南部を中心に発生（詳細集計中）",
-  evacuees: 4700,       // 時事通信（7/29朝）：県内36市町村で4,700人超 ※前回値2,344人は熊本市のみの集計。集計範囲が異なるため単純比較不可
-  evacueesScope: "県内36市町村（報道）",
-  shelters: 182,        // 熊本市開設分（7/29 0:30、第3回熊本市災対本部会議）。県全域の避難所数は集計中。宇城市・氷川町では避難所を開設できず車中泊用に駐車場等を開放
-  evacOrder: "避難指示 46,610世帯・92,743人（消防庁第14報）",
-  kyujoLaw: 21,         // 災害救助法適用：熊本県21市町村（10市10町1村、7/28 内閣府）
-  rescue: [
-    { site: "イオンモール熊本（嘉島町）", detail: "地震後にガス漏れが原因とみられる爆発、2階部分が崩落。死者2人（20代女性ほか）・心肺停止1人・8人救助（29日4時現在・NHK）。約10人と連絡が取れず捜索継続（29日朝・報道）", status: "捜索中" },
-    { site: "日本製紙 八代工場（八代市）", detail: "煙突が中央付近から折れて倒壊。2人心肺停止・9人安否不明（29日朝時点・報道）。救助活動継続中", status: "捜索中" }
-  ],
-  transport: [
-    { mode: "九州新幹線", detail: "29日始発から全線運休（JR九州）" },
-    { mode: "JR在来線ほか", detail: "8事業者12路線が運転見合わせ（国交省 7/28 21:00）" },
-    { mode: "高速道路", detail: "4路線29区間通行止め（国交省 7/28 21:00）" },
-    { mode: "国道", detail: "熊本市内 国道3号の一部（〜釈迦堂橋間）通行止めほか、八代市で道路高架の被害情報" },
-    { mode: "熊本空港", detail: "滑走路閉鎖は28日19:05に解除。28日は29便欠航。29日は運航状況を要確認" },
-    { mode: "港湾", detail: "八代港：岸壁背後に段差・液状化・陥没2箇所。熊本港：フェリー渡橋損傷のため使用不可" },
-    { mode: "バス", detail: "高速バス8事業者31路線運休、路線バス3事業者が全路線運休（7/28時点）" },
-    { mode: "熊本市電", detail: "29日始発から運行再開予定（熊本市 7/29 0:30）" }
-  ],
-  sources: [
-    { name: "消防庁 被害報 第14報（7/29 7:00現在）", url: "https://www.fdma.go.jp/disaster/info/items/20260728kumamotojishin14.pdf" },
-    { name: "国土交通省 被害状況等 第2報（7/28 21:00時点）", url: "https://www.mlit.go.jp/common/002014121.pdf" },
-    { name: "内閣府 災害救助法の適用について（7/28）", url: "https://www.bousai.go.jp/pdf/260728.pdf" },
-    { name: "熊本市 災害対策本部会議資料（第3回・7/29 1:00）", url: "https://www.city.kumamoto.jp/kiji00372080/index.html" },
-    { name: "熊本県 災害対策本部会議（第2回・7/29 0:00）", url: "https://www.pref.kumamoto.jp/soshiki/222/274487.html" },
-    { name: "気象庁 令和8年熊本地震 関連情報", url: "https://www.jma.go.jp/jma/menu/20260728_kumamoto_jishin.html" },
-    { name: "熊本日日新聞：県内3.5万戸停電 九電公表（7/29 5:40）", url: "https://kumanichi.com/articles/2019019" },
-    { name: "熊本日日新聞：21市町村に災害救助法適用", url: "https://kumanichi.com/articles/2018825" },
-    { name: "NHK：イオンモール熊本で爆発 2人死亡（7/29 5:32）", url: "https://news.web.nhk/newsweb/na/na-k10015189291000" },
-    { name: "NHK：日本製紙八代工場 煙突倒壊（7/28 18:48）", url: "https://news.web.nhk/newsweb/na/na-k10015188691000" },
-    { name: "西日本新聞（共同）：約14万戸断水 給水車派遣を要請", url: "https://www.nishinippon.co.jp/item/1520891/" },
-    { name: "時事通信：36市町村4,700人超避難（7/29朝）", url: "https://news.infoseek.co.jp/article/jiji_2026072900114/" }
-  ],
-  notes: [
-    "死者数は消防庁第14報（7/29 7:00現在）の公的発表値。報道ではイオンモール熊本で2人死亡・1人心肺停止、日本製紙八代工場で2人心肺停止とされており、今後公的集計に反映され増加する可能性がある。",
-    "安否不明者数19人は報道ベースの合算値（公的な確定値は集計中）。",
-    "避難者数は今回から県内全域（36市町村・報道）の集計に変更。前回値2,344人は熊本市のみの集計のため、増加分の大半は集計範囲の拡大による。避難所数182か所は引き続き熊本市開設分のみ。",
-    "ガス供給停止戸数は7/29 5:10版から新しい公表値が確認できず既報値を継続掲載。",
-    "断水戸数は7/28夜時点の国交省集計（17市町村・約14万戸）。",
-    "数値はいずれも速報値であり、今後の発表で変わり得る。"
-  ]
+  deaths:   { v: 8,     t: "7/29 11:00", src: "消防庁 被害報 第15報",
+              note: "政府（首相）発表では13人（7/29 8:30時点・災害関連死の調査中を含む）、NHK熊本県まとめでは12人・心肺停止6人（7/29 3:53）。公的集計の確定を待って反映。" },
+  missing:  { v: 7,     t: "7/29 10:12", src: "NHK（熊本県まとめ）",
+              note: "「少なくとも7人」。日本製紙八代工場では9人安否不明との報道（7/29 7:18時点）もあり、集計中。" },
+  injured:  { v: 29,    t: "7/29 11:00", src: "消防庁 被害報 第15報",
+              note: "重傷6人・軽傷23人（熊本県22・鹿児島県1）。報道では28日夜時点で搬送50人以上とも。" },
+  houses:   { v: null,  t: "—", src: "集計中",
+              note: "全壊・半壊等の公的集計は精査中（速報値が版により変動しているため「集計中」表示）。報道ベースでは多数の建物被害。" },
+  outage:   { v: 35640, t: "7/29 5:15", src: "九州電力（報道経由）",
+              note: "29日朝時点で約3.5万戸。前夜0:30時点の42,440戸から減少。" },
+  water:    { v: 84000, t: "7/29 昼", src: "報道値（毎日新聞・5県合計）",
+              note: "県内内訳（NHK 9:30時点）：宇城市 約14,000戸、宇土市 約12,200戸、八代市・氷川町 計約28,500戸、熊本市南区 約9,000戸ほか。公的な県内合計は集計中。" },
+  gas:      { v: 10481, t: "7/29 5:10", src: "都市ガス事業者",
+              note: "八代市内の都市ガスは8月3日復旧見通し（報道）。熊本市東区秋津町481戸など。戸数はその後の公表なし。" },
+  telecom:  { v: null,  t: "—", src: "総務省 第6報（7/28）",
+              note: "携帯・固定の障害状況は総務省が被害情報を公表中。詳細戸数は集計中。" },
+  evacuees: { v: 4700,  t: "7/29 早朝", src: "時事通信（36市町村）",
+              note: "36市町村で4,700人超が避難所に避難。避難指示対象は別枠（熊本県 46,610世帯 92,743人＝消防庁第14報）。" },
+  shelters: { v: 182,   t: "7/29 5:36", src: "熊本日日新聞（熊本市内）",
+              note: "熊本市内の避難所数。県全体の箇所数は集計中。ペット同伴可2カ所・車中泊受入2カ所。" },
+  rescueLaw:{ v: 21,    t: "7/28", src: "内閣府",
+              note: "熊本県内21市町村に災害救助法を適用。" }
 };
 
-// ===================== HISTORY =====================
-// 注：7/29 5:10以前の履歴は本自動更新時に既存版を取得できなかったため、5:10版（ベースライン）以降を掲載
+// ===================== HISTORY（推移） =====================
+// 各レコード：時点、停電、断水、ガス、避難者、避難所、死者、安否不明。null=集計中。
 const HISTORY = [
-  { asOf: "7/29 5:10", outage: 42440, water: 140000, gas: 10481, evacuees: 2344, shelters: 182, deaths: 1, missing: 19 },
-  { asOf: "7/29 7:00", outage: 35640, water: 140000, gas: 10481, evacuees: 4700, shelters: 182, deaths: 3, missing: 19 }
+  { asOf: "7/29 5:10",  asOfISO: "2026-07-29T05:10+09:00", outage: 42440, water: 140000, gas: 10481, evacuees: 2344, shelters: 182, deaths: 1, missing: 19 },
+  { asOf: "7/29 18:00", asOfISO: "2026-07-29T18:00+09:00", outage: 35640, water: 84000,  gas: 10481, evacuees: 4700, shelters: 182, deaths: 8, missing: 7 }
+];
+
+// ===================== 交通・救助・余震 =====================
+const TRANSPORT = [
+  { mode: "九州新幹線", status: "博多—筑後船小屋間は29日17時ごろから本数を減らして再開。筑後船小屋—鹿児島中央間は29日終日運休（レールが曲がる被害の報道）。", t: "7/29 14:00ごろ", src: "乗りものニュース／JR九州発表" },
+  { mode: "在来線", status: "鹿児島本線 荒尾—八代間、豊肥本線 熊本—宮地間、三角線 全線で運転見合わせ。観光列車も終日運休。", t: "7/29 14:00ごろ", src: "JR九州発表（報道経由）" },
+  { mode: "高速道路", status: "南九州自動車道 水俣IC—八代JCT 上下線などで通行止め（橋桁の段差）。", t: "7/29", src: "TBS/NEXCO西日本（報道経由）" },
+  { mode: "空港", status: "熊本空港 発着13便欠航（28日〜）。滑走路に被害は確認されず。", t: "7/29 朝", src: "FNN（報道経由）" }
+];
+const RESCUE = [
+  { site: "イオンモール熊本（嘉島町）", detail: "地震に伴うガス漏れとみられる爆発と2階部分の崩落。首相発表で3人死亡（7/29 10:00時点。それ以前の報道では死者2人・心肺停止1人）。救助活動継続中。" },
+  { site: "日本製紙 八代工場（八代市）", detail: "煙突が中央付近から折損・倒壊。心肺停止2人・大けが2人、安否不明9人（7/29 7:18時点報道）。捜索続く。" },
+  { site: "氷川町", detail: "住宅の座屈2件に消防が対応中（消防庁被害報）。" }
+];
+const AFTERSHOCK = "本震（7/28 16:27ごろ、M7.1・最大震度7）以降、地震活動が活発。震度5弱を観測する地震が3回発生（7/29時点）。気象庁は今後1週間程度、同程度の地震に注意を呼びかけ。県内では火災8件が発生し全て鎮火（消防庁）。";
+
+// ===================== SOURCES =====================
+const SOURCES = [
+  { name: "消防庁 被害報 第15報（7/29 11:00）", url: "https://www.fdma.go.jp/disaster/info/items/20260728kumamotojishin15.pdf" },
+  { name: "消防庁 被害報 第14報（7/29 7:00）", url: "https://www.fdma.go.jp/disaster/info/items/20260728kumamotojishin14.pdf" },
+  { name: "気象庁 令和8年熊本地震 関連情報", url: "https://www.jma.go.jp/jma/menu/20260728_kumamoto_jishin.html" },
+  { name: "内閣府 防災情報（被害状況・災害救助法適用）", url: "https://www.bousai.go.jp/updates/r8kumamoto_jishin/index.html" },
+  { name: "内閣府 災害救助法の適用について（7/28）", url: "https://www.bousai.go.jp/pdf/260728.pdf" },
+  { name: "総務省 被害情報 第6報（通信・放送）", url: "https://www.soumu.go.jp/menu_kyotsuu/important/kinkyu01_000683.html" },
+  { name: "熊本県 令和8年熊本地震に関する情報", url: "https://www.pref.kumamoto.jp/soshiki/1/274517.html" },
+  { name: "NHK 熊本県まとめ（死者・心肺停止・安否不明）", url: "https://news.web.nhk/newsweb/na/na-k10015189221000" },
+  { name: "NHK 県内の断水状況（7/29 9:30時点）", url: "https://news.web.nhk/newsweb/na/nb-5000029430" },
+  { name: "NHK 首相発表（イオンモール熊本・死者数）", url: "https://news.web.nhk/newsweb/na/na-k10015189461000" },
+  { name: "NHK 日本製紙八代工場の被害", url: "https://news.web.nhk/newsweb/na/na-k10015188691000" },
+  { name: "熊本日日新聞 給水所・断水（7/29 5:36）", url: "https://kumanichi.com/articles/2018975" },
+  { name: "乗りものニュース 九州新幹線 一部再開（7/29）", url: "https://trafficnews.jp/post/692852" },
+  { name: "時事通信 36市町村4,700人超避難（7/29）", url: "https://news.infoseek.co.jp/article/jiji_2026072900114/" },
+  { name: "毎日新聞 断水8.4万戸・新幹線レール被害（7/29）", url: "https://news.yahoo.co.jp/articles/a27acef05f6f779b25a303d3de0675e5a9063b5d" },
+  { name: "共同通信 死者13人か（7/29）", url: "https://news.yahoo.co.jp/articles/c450d7e7878e395586c9bce4913e10180fecbb14" }
 ];
 </script>
 <style>
   :root{
-    --bg:#f6f7f9; --surface:#ffffff; --ink:#1a202c; --ink2:#4a5568; --muted:#718096;
-    --line:#e2e8f0; --accent:#2563a8;
-    --critical:#b3261e; --serious:#c2410c; --warning:#a16207; --good:#15803d;
-    --critical-bg:#fdecea; --serious-bg:#fff1e7; --warning-bg:#fdf6e3; --good-bg:#eaf6ee;
+    --bg:#f6f7f9; --card:#ffffff; --ink:#1a1f2b; --muted:#5b6472; --line:#e3e6eb;
+    --accent:#0f6fb8; --danger:#c0392b; --warn:#b26a00; --ok:#1e7d4f;
+    --chip:#eef2f6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#141821; --card:#1d2330; --ink:#e8ebf0; --muted:#9aa4b2; --line:#2c3444;
+           --accent:#5aa8e0; --danger:#e07060; --warn:#d9a04a; --ok:#5abf8a; --chip:#252d3c; }
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Meiryo,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; padding:16px;}
-  .wrap{max-width:1100px; margin:0 auto;}
-  header{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:16px;}
-  header h1{font-size:1.35rem; margin-bottom:4px;}
-  .asof{color:var(--ink2); font-size:.9rem;}
-  .asof strong{color:var(--critical);}
-  .quake{margin-top:10px; font-size:.88rem; color:var(--ink2); border-top:1px dashed var(--line); padding-top:10px;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:16px;}
-  .tile{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
-  .tile .label{font-size:.78rem; color:var(--muted); display:flex; align-items:center; gap:6px;}
-  .tile .value{font-size:1.7rem; font-weight:700; letter-spacing:.02em; margin:2px 0;}
-  .tile .unit{font-size:.85rem; font-weight:400; color:var(--ink2);}
-  .tile .tp{font-size:.72rem; color:var(--muted);}
-  .tile .delta{font-size:.78rem; font-weight:600;}
-  .up{color:var(--critical);} .down{color:var(--good);} .flat{color:var(--muted);}
-  .tile.critical{border-left:4px solid var(--critical); background:var(--critical-bg);}
-  .tile.serious{border-left:4px solid var(--serious); background:var(--serious-bg);}
-  .tile.warning{border-left:4px solid var(--warning); background:var(--warning-bg);}
-  section{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin-bottom:16px;}
-  section h2{font-size:1.02rem; margin-bottom:10px; padding-left:10px; border-left:4px solid var(--accent);}
-  table{width:100%; border-collapse:collapse; font-size:.86rem;}
-  th,td{padding:8px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top;}
-  th{background:#f1f4f8; font-weight:600; color:var(--ink2); white-space:nowrap;}
-  td.num, th.num{text-align:right; font-variant-numeric:tabular-nums;}
-  .badge{display:inline-block; font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:10px; background:var(--serious-bg); color:var(--serious); white-space:nowrap;}
-  ul.notes{font-size:.82rem; color:var(--ink2); padding-left:1.2em;}
-  ul.notes li{margin-bottom:4px;}
-  .src a{color:var(--accent); text-decoration:none; word-break:break-all;}
-  .src li{margin-bottom:3px; font-size:.82rem;}
-  footer{font-size:.75rem; color:var(--muted); text-align:center; padding:8px 0 20px;}
-  @media (max-width:600px){ .tile .value{font-size:1.4rem;} }
+  body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Noto Sans JP",Meiryo,sans-serif;
+       background:var(--bg); color:var(--ink); line-height:1.6; padding:20px; max-width:1100px; margin:0 auto;}
+  header{border-left:6px solid var(--danger); padding:6px 0 6px 14px; margin-bottom:6px;}
+  h1{font-size:1.35rem;}
+  .meta{color:var(--muted); font-size:.85rem; margin-bottom:14px;}
+  .meta b{color:var(--ink);}
+  .banner{background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:8px 12px;
+          font-size:.82rem; color:var(--muted); margin-bottom:18px;}
+  h2{font-size:1.02rem; margin:26px 0 10px; border-bottom:2px solid var(--line); padding-bottom:4px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+  .kpi-label{font-size:.8rem; color:var(--muted);}
+  .kpi-value{font-size:1.7rem; font-weight:700; margin:2px 0;}
+  .kpi-value.danger{color:var(--danger);} .kpi-value.warn{color:var(--warn);} .kpi-value.accent{color:var(--accent);}
+  .kpi-sub{font-size:.74rem; color:var(--muted);}
+  .kpi-note{font-size:.72rem; color:var(--muted); margin-top:6px; border-top:1px dashed var(--line); padding-top:5px;}
+  .delta{font-size:.78rem; font-weight:600;}
+  .delta.down{color:var(--ok);} .delta.up{color:var(--danger);}
+  table{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line);
+        border-radius:10px; overflow:hidden; font-size:.86rem;}
+  th,td{padding:8px 10px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{background:var(--chip); font-size:.78rem; color:var(--muted); white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  .src-list{font-size:.8rem; color:var(--muted); columns:2; column-gap:28px;}
+  .src-list li{margin-bottom:4px; break-inside:avoid;}
+  a{color:var(--accent); text-decoration:none;} a:hover{text-decoration:underline;}
+  .spark{width:100%; height:46px; margin-top:4px;}
+  footer{margin-top:30px; font-size:.75rem; color:var(--muted); border-top:1px solid var(--line); padding-top:10px;}
+  @media(max-width:640px){ .src-list{columns:1;} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1 id="title"></h1>
-    <div class="asof" id="asof"></div>
-    <div class="quake" id="quakeinfo"></div>
-  </header>
+<header>
+  <h1 id="title">令和8年熊本地震 被害状況ダッシュボード</h1>
+</header>
+<div class="meta" id="meta"></div>
+<div class="banner">数値は速報値であり今後変わりうる。公的発表を主表示とし、報道値は注記に併記。「集計中」は公的な確定値が未公表の指標。避難指示の対象人数と実際の避難者数は区別して表示。</div>
 
-  <div class="grid" id="tiles"></div>
+<h2>人的被害・避難</h2>
+<div class="grid" id="kpi-human"></div>
 
-  <section>
-    <h2>主要救助事案</h2>
-    <table id="rescue"><thead><tr><th>現場</th><th>状況</th><th>ステータス</th></tr></thead><tbody></tbody></table>
-  </section>
+<h2>ライフライン</h2>
+<div class="grid" id="kpi-lifeline"></div>
 
-  <section>
-    <h2>交通の状況</h2>
-    <table id="transport"><thead><tr><th>交通機関</th><th>状況</th></tr></thead><tbody></tbody></table>
-  </section>
+<h2>推移（HISTORY）</h2>
+<div style="overflow-x:auto"><table id="history-table"></table></div>
 
-  <section>
-    <h2>推移（HISTORY）</h2>
-    <table id="history"><thead><tr>
-      <th>時点</th><th class="num">死者</th><th class="num">安否不明</th><th class="num">停電（戸）</th><th class="num">断水（戸）</th><th class="num">ガス停止（戸）</th><th class="num">避難者</th><th class="num">避難所</th>
-    </tr></thead><tbody></tbody></table>
-    <p style="font-size:.78rem;color:var(--muted);margin-top:6px;">※7/29 7:00版の避難者数から県内全域集計（報道）に変更（5:10版までは熊本市のみ）。避難所数は熊本市開設分。</p>
-  </section>
+<h2>交通</h2>
+<div style="overflow-x:auto"><table id="transport-table"></table></div>
 
-  <section>
-    <h2>注記</h2>
-    <ul class="notes" id="notes"></ul>
-  </section>
+<h2>主要救助事案</h2>
+<div style="overflow-x:auto"><table id="rescue-table"></table></div>
 
-  <section class="src">
-    <h2>出典</h2>
-    <ul id="sources"></ul>
-  </section>
+<h2>余震・火災の状況</h2>
+<div class="card" id="aftershock" style="font-size:.88rem;"></div>
 
-  <footer id="footer"></footer>
-</div>
+<h2>出典</h2>
+<ul class="src-list" id="sources"></ul>
+
+<footer id="footer"></footer>
 
 <script>
-(function(){
-  const fmt = n => n==null ? "集計中" : n.toLocaleString("ja-JP");
-  const q = DATA.quake;
-  document.getElementById("title").textContent = q.name + " 被害状況ダッシュボード";
-  document.getElementById("asof").innerHTML =
-    "情報基準時：<strong>" + DATA.asOf + "</strong>（日本時間）｜ " + DATA.version;
-  document.getElementById("quakeinfo").innerHTML =
-    "発生：7月28日16:27ごろ ｜ 震源：" + q.epicenter + " ｜ M" + q.magnitude + " ｜ 深さ" + q.depth +
-    " ｜ 最大" + q.maxIntensity + "<br>余震等：" + q.aftershock;
+const fmt = v => v === null ? "集計中" : v.toLocaleString("ja-JP");
+const q = DATA.quake;
+document.getElementById("meta").innerHTML =
+  `発生：<b>${q.occurred}</b>（${q.epicenter}、${q.magnitude}・深さ${q.depth}、最大${q.maxShindo}）｜` +
+  `情報基準時：<b>${DATA.asOf}</b>（日本時間）｜${DATA.version}｜災害救助法適用：<b>${DATA.rescueLaw.v}市町村</b>（${DATA.rescueLaw.t}・${DATA.rescueLaw.src}）`;
 
-  const prev = HISTORY.length >= 2 ? HISTORY[HISTORY.length-2] : null;
-  function delta(key, invert){
-    if(!prev || prev[key]==null || DATA[key]==null) return "";
-    const d = DATA[key] - prev[key];
-    if(d===0) return '<span class="delta flat">前回比 ±0</span>';
-    const cls = (d>0) ? "up" : "down";
-    return '<span class="delta '+cls+'">前回比 '+(d>0?"+":"")+d.toLocaleString("ja-JP")+'</span>';
-  }
-  const tiles = [
-    {label:"死者", value:fmt(DATA.deaths), unit:"人", tp:"消防庁 第14報（7/29 7:00現在）", cls:"critical", d:delta("deaths")},
-    {label:"安否不明", value:fmt(DATA.missing), unit:"人", tp:"報道合算（29日朝）※公的値は集計中", cls:"critical", d:delta("missing")},
-    {label:"負傷者", value:fmt(DATA.injuries), unit:"人（重傷"+DATA.injuriesSevere+"・軽傷"+DATA.injuriesMinor+"）", tp:"消防庁 第14報", cls:"serious", d:""},
-    {label:"避難者", value:fmt(DATA.evacuees)+"超", unit:"人", tp:DATA.evacueesScope+"（29日朝）※集計範囲変更", cls:"serious", d:""},
-    {label:"避難所", value:fmt(DATA.shelters), unit:"か所（熊本市）", tp:"7/29 0:30 熊本市災対本部", cls:"warning", d:delta("shelters")},
-    {label:"停電", value:fmt(DATA.outage), unit:"戸", tp:"九州電力（7/29 5:00現在）", cls:"warning", d:delta("outage")},
-    {label:"断水", value:"約"+fmt(DATA.water), unit:"戸（17市町村）", tp:"国交省集計（7/28夜）", cls:"warning", d:delta("water")},
-    {label:"ガス供給停止", value:fmt(DATA.gas), unit:"戸", tp:"既報値（新規公表なし）", cls:"warning", d:delta("gas")},
-    {label:"住家被害", value:fmt(DATA.housing.full+DATA.housing.half+DATA.housing.partial), unit:"棟（全壊"+DATA.housing.full+"・半壊"+DATA.housing.half+"・一部破損"+DATA.housing.partial+"）", tp:"消防庁 第14報 ※集計初期", cls:"warning", d:""},
-    {label:"災害救助法 適用", value:fmt(DATA.kyujoLaw), unit:"市町村（10市10町1村）", tp:"内閣府（7/28）", cls:"serious", d:""}
-  ];
-  document.getElementById("tiles").innerHTML = tiles.map(t =>
-    '<div class="tile '+(t.cls||"")+'"><div class="label">'+t.label+'</div>'+
-    '<div class="value">'+t.value+' <span class="unit">'+t.unit+'</span></div>'+
-    (t.d||'')+'<div class="tp">'+t.tp+'</div></div>').join("");
+const prev = HISTORY.length > 1 ? HISTORY[HISTORY.length-2] : null;
+function deltaHtml(key, cur){
+  if(!prev || cur === null || prev[key] == null) return "";
+  const d = cur - prev[key];
+  if(d === 0) return `<span class="delta">±0（前回 ${prev.asOf}）</span>`;
+  const cls = d < 0 ? "down" : "up";
+  return `<span class="delta ${cls}">${d>0?"+":""}${d.toLocaleString("ja-JP")}（前回 ${prev.asOf}）</span>`;
+}
+function spark(key){
+  const vals = HISTORY.map(h=>h[key]).filter(v=>v!=null);
+  if(vals.length < 2) return "";
+  const max = Math.max(...vals), min = Math.min(...vals), range = (max-min)||1;
+  const pts = vals.map((v,i)=>`${(i/(vals.length-1))*100},${40-((v-min)/range)*32}`).join(" ");
+  return `<svg class="spark" viewBox="0 0 100 46" preserveAspectRatio="none" aria-hidden="true">
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function kpiCard(label, d, key, unit, cls){
+  return `<div class="card">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value ${cls||""}">${fmt(d.v)}<span style="font-size:.85rem;font-weight:400"> ${d.v===null?"":unit}</span></div>
+    <div class="kpi-sub">${d.t} 時点｜${d.src}</div>
+    ${key?deltaHtml(key,d.v):""}${key?spark(key):""}
+    ${d.note?`<div class="kpi-note">${d.note}</div>`:""}
+  </div>`;
+}
+document.getElementById("kpi-human").innerHTML =
+  kpiCard("死者", DATA.deaths, "deaths", "人", "danger") +
+  kpiCard("安否不明者", DATA.missing, "missing", "人", "danger") +
+  kpiCard("負傷者", DATA.injured, null, "人", "warn") +
+  kpiCard("住家被害", DATA.houses, null, "棟", "warn") +
+  kpiCard("避難者（避難所）", DATA.evacuees, "evacuees", "人超", "accent") +
+  kpiCard("避難所数", DATA.shelters, "shelters", "カ所", "accent");
+document.getElementById("kpi-lifeline").innerHTML =
+  kpiCard("停電", DATA.outage, "outage", "戸", "warn") +
+  kpiCard("断水", DATA.water, "water", "戸", "warn") +
+  kpiCard("都市ガス供給停止", DATA.gas, "gas", "戸", "warn") +
+  kpiCard("通信障害", DATA.telecom, null, "", "");
 
-  document.querySelector("#rescue tbody").innerHTML = DATA.rescue.map(r =>
-    "<tr><td><strong>"+r.site+"</strong></td><td>"+r.detail+'</td><td><span class="badge">'+r.status+"</span></td></tr>").join("");
+const keys = [["asOf","時点"],["deaths","死者"],["missing","安否不明"],["outage","停電（戸）"],["water","断水（戸）"],["gas","ガス（戸）"],["evacuees","避難者"],["shelters","避難所"]];
+document.getElementById("history-table").innerHTML =
+  `<tr>${keys.map(k=>`<th>${k[1]}</th>`).join("")}</tr>` +
+  HISTORY.map(h=>`<tr>${keys.map(k=>`<td>${k[0]==="asOf"?h[k[0]]:fmt(h[k[0]])}</td>`).join("")}</tr>`).join("");
 
-  document.querySelector("#transport tbody").innerHTML = DATA.transport.map(t =>
-    "<tr><td style='white-space:nowrap'><strong>"+t.mode+"</strong></td><td>"+t.detail+"</td></tr>").join("");
+document.getElementById("transport-table").innerHTML =
+  `<tr><th>交通機関</th><th>状況</th><th>時点・出典</th></tr>` +
+  TRANSPORT.map(t=>`<tr><td style="white-space:nowrap"><b>${t.mode}</b></td><td>${t.status}</td><td style="font-size:.78rem;color:var(--muted)">${t.t}<br>${t.src}</td></tr>`).join("");
 
-  document.querySelector("#history tbody").innerHTML = HISTORY.map(h =>
-    "<tr><td>"+h.asOf+'</td><td class="num">'+fmt(h.deaths)+'</td><td class="num">'+fmt(h.missing)+'</td><td class="num">'+fmt(h.outage)+'</td><td class="num">'+fmt(h.water)+'</td><td class="num">'+fmt(h.gas)+'</td><td class="num">'+fmt(h.evacuees)+'</td><td class="num">'+fmt(h.shelters)+"</td></tr>").join("");
+document.getElementById("rescue-table").innerHTML =
+  `<tr><th>現場</th><th>状況</th></tr>` +
+  RESCUE.map(r=>`<tr><td style="white-space:nowrap"><b>${r.site}</b></td><td>${r.detail}</td></tr>`).join("");
 
-  document.getElementById("notes").innerHTML = DATA.notes.map(n => "<li>"+n+"</li>").join("");
-  document.getElementById("sources").innerHTML = DATA.sources.map(s =>
-    '<li><a href="'+s.url+'" target="_blank" rel="noopener">'+s.name+"</a></li>").join("");
-  document.getElementById("footer").textContent =
-    "本ダッシュボードは速報値に基づく参考情報です。数値は今後の公的発表により変わることがあります。｜ 情報基準時 " + DATA.asOf + "（JST）";
-})();
+document.getElementById("aftershock").textContent = AFTERSHOCK;
+
+document.getElementById("sources").innerHTML =
+  SOURCES.map(s=>`<li><a href="${s.url}" target="_blank" rel="noopener">${s.name}</a></li>`).join("");
+
+document.getElementById("footer").innerHTML =
+  `本ダッシュボードは自動更新。数値は各出典の速報値で、指標ごとに「時点」が異なる。断水の主表示は報道値（5県合計）であり、公的な県内合計の公表後に差し替え予定。住家被害は公的速報の変動が大きいため「集計中」。｜作成：土屋（経営コンサルタント）／状況把握・クライアント説明・講演教材用`;
 </script>
 </body>
 </html>
