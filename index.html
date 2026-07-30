@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>令和8年熊本地震 被害状況ダッシュボード（7/30 9:30版）</title>
+<title>令和8年熊本地震 被害状況ダッシュボード（7/30 12:00版）</title>
 <script>
 // =====================================================================
 // DATA / HISTORY  — 自動更新スクリプトはこのブロックのみを差し替えること
-// 情報基準時: 2026-07-30 09:30 JST（各指標の発表時点は *Time を参照）
+// 情報基準時: 2026-07-30 12:00 JST（各指標の発表時点は *Time を参照）
 // 数値は公的発表を主表示、報道値は注記に併記。
 // =====================================================================
 const DATA = {
-  version: "2026-07-30 09:30 版",
-  asOf: "7/30 9:30",
-  asOfISO: "2026-07-30T09:30+09:00",
+  version: "2026-07-30 12:00 版",
+  asOf: "7/30 12:00",
+  asOfISO: "2026-07-30T12:00+09:00",
 
-  deaths: 17,
-  deathsTime: "7/30 9:30 熊本県発表",
-  deathsNote: "県災害対策本部会議（7/30 9:30）で17人死亡と発表。ほかに心肺停止6人（別掲、死者数に未算入）。内訳（報道）：イオンモール熊本5人・日本製紙八代工場8人ほか。",
+  deaths: 28,
+  deathsTime: "7/30 午前 政府発表（木原官房長官会見）",
+  deathsNote: "【集計範囲変更】官房長官が7/30午前の会見で『災害との関連を調査中の事案を含め死者28人』と発表（ロイター/NHK/熊本日日）。県発表ベース（7/30 9:30本部会議）では死亡17人・心肺停止6人（別掲）であり、前版の17人とは集計範囲が異なるため単純比較不可。内訳（報道）：イオンモール熊本5人・日本製紙八代工場8人ほか。",
 
   missing: 1,
   missingTime: "7/30 9:30 熊本県発表",
@@ -27,13 +27,13 @@ const DATA = {
   injuredTime: "7/29 11:00 消防庁第15報",
   injuredNote: "重傷6・軽傷23（熊本県22・鹿児島県1）。総数は精査中（同報には計47人との記載もある）。報道では宇城地域だけで50人超搬送。",
 
-  evacuees: 9872,
-  evacueesTime: "7/29 7:30 熊本県発表",
-  evacueesNote: "報道では『約1万人』（毎日・Yahoo!）。宇城市・氷川町では避難所を開設できず車中泊向けに駐車場等を開放（NHK）。",
+  evacuees: 10467,
+  evacueesTime: "7/30 10:26 熊本県まとめ（熊本日日新聞速報）",
+  evacueesNote: "県内避難者は1万人を超え1万467人（熊本日日新聞 7/30 10:26、県まとめ）。前版9,872人（7/29 7:30県発表）から増加。宇城市・氷川町では避難所を開設できず車中泊向けに駐車場等を開放（NHK）。",
 
-  shelters: 506,
-  sheltersTime: "7/29 6:20 内閣府",
-  sheltersNote: "報道では465カ所（Yahoo!トピックス）。集計主体により差がある。",
+  shelters: 415,
+  sheltersTime: "7/30 10:26 熊本県まとめ（熊本日日新聞速報）",
+  sheltersNote: "415カ所（熊本日日新聞 7/30 10:26、県まとめ）。前版506カ所（内閣府7/29 6:20）から減少しており、避難所の集約・統合が進んだとみられる。集計主体により差がある。",
 
   outage: 22940,
   outageTime: "7/30 5:00 九州電力（熊本県内）",
@@ -45,7 +45,7 @@ const DATA = {
 
   gas: 9481,
   gasTime: "7/29 7:00 内閣府",
-  gasNote: "内訳: 八代市 約9,000戸＋熊本市 481戸（熊本市分は7/29中の復旧見込み）。",
+  gasNote: "内訳: 八代市 約9,000戸＋熊本市 481戸（熊本市分は7/29中の復旧見込み）。八代市内の都市ガスは8月3日復旧見通しと報道（日経 7/30）。",
 
   telecom: "ドコモ1局・KDDI 77局停波",
   telecomTime: "7/29 7:00 内閣府",
@@ -62,6 +62,8 @@ const HISTORY = [
     note: "断水は熊本県内・県発表ベースに変更。停電は内閣府7/29 6:00値（報道では7/29夜2万戸台）" },
   { t: "7/30 9:30", iso: "2026-07-30T09:30+09:00", deaths: 17, missing: 1,  injured: 29,   outage: 22940, water: 56817,  gas: 9481,  evacuees: 9872, shelters: 506,
     note: "死者・安否不明は県7/30 9:30発表（心肺停止6人は別掲）。停電は九電7/30 5:00値。断水・ガス・避難者・負傷者は前版値を継続（新発表未確認）" },
+  { t: "7/30 12:00", iso: "2026-07-30T12:00+09:00", deaths: 28, missing: 1,  injured: 29,   outage: 22940, water: 56817,  gas: 9481,  evacuees: 10467, shelters: 415,
+    note: "死者は政府発表『関連調査中含め28人』（官房長官7/30午前会見）に切替（集計範囲変更・県発表ベースは死亡17＋心肺停止6）。避難者1万467人・避難所415カ所は県まとめ（熊本日日10:26）。停電・断水・ガス・負傷者は前版値を継続（新発表未確認）" },
 ];
 // ===================== DATA / HISTORY ここまで =======================
 </script>
@@ -159,12 +161,12 @@ const HISTORY = [
 <h2>ライフライン</h2>
 <div class="tiles" id="tiles-life"></div>
 
-<h2>前版（7/30 6:00）との比較</h2>
+<h2>前版（7/30 9:30）との比較</h2>
 <div class="cmp">
-  <div class="legend"><span class="lp">前版 7/30 6:00</span><span class="ln">今版 7/30 9:30</span></div>
+  <div class="legend"><span class="lp">前版 7/30 9:30</span><span class="ln">今版 7/30 12:00</span></div>
   <div id="cmp-rows"></div>
   <p style="font-size:11px;color:var(--text-muted);margin-top:8px">
-    各行はその指標の最大値で正規化（行間でスケールは共通ではない）。断水は集計範囲が変更されており単純比較不可。
+    各行はその指標の最大値で正規化（行間でスケールは共通ではない）。死者は今版から政府発表（関連調査中含む）ベースに切替のため、断水と同様に単純比較不可。
   </p>
 </div>
 
@@ -208,23 +210,24 @@ const HISTORY = [
 <h2>推移（HISTORY）</h2>
 <div class="card" style="overflow-x:auto">
   <table id="hist-table"></table>
-  <p style="font-size:11px;color:var(--text-muted);margin-top:6px">断水: 7/29 5:10は報道ベース広域集計、7/30 6:00以降は熊本県内・県発表ベース（範囲変更）。7/30 9:30行の断水・ガス・避難者・負傷者は新発表未確認のため前版値を継続。「—」は集計中・未取得。</p>
+  <p style="font-size:11px;color:var(--text-muted);margin-top:6px">断水: 7/29 5:10は報道ベース広域集計、7/30 6:00以降は熊本県内・県発表ベース（範囲変更）。死者: 7/30 12:00行から政府発表『関連調査中含む』ベース（それ以前は県発表等の死亡確認数）。7/30 12:00行の停電・断水・ガス・負傷者は新発表未確認のため前版値を継続。「—」は集計中・未取得。</p>
 </div>
 
 <h2>注記</h2>
 <div class="note">
-  <b>本版について</b>: 数値は公的発表（熊本県・内閣府・消防庁・首相官邸）を主表示とし、報道値は注記に併記。未確定の指標はゼロで埋めず「集計中」とした。死者17人のほかに<b>心肺停止6人</b>が別掲されており、今後死者数が増える可能性がある。断水・ガス・避難者・負傷者は7/30朝時点の新発表が未確認のため前版値を継続掲載。
+  <b>本版について</b>: 数値は公的発表（政府・熊本県・内閣府・消防庁）を主表示とし、報道値は注記に併記。未確定の指標はゼロで埋めず「集計中」とした。死者28人は<b>災害との関連を調査中の事案を含む政府発表値</b>（7/30午前・官房長官会見）で、県発表ベース（死亡17人＋心肺停止6人別掲）とは集計範囲が異なる。今後の精査で増減があり得る。停電・断水・ガス・負傷者は7/30昼時点の新発表が未確認のため前版値を継続掲載。
 </div>
 
 <h2>出典</h2>
 <div class="card src"><ul>
-  <li>熊本県 <a href="https://www.pref.kumamoto.jp/soshiki/222/274487.html">災害対策本部会議</a>／NHK <a href="https://news.web.nhk/newsweb/na/na-k10015190421000">17人死亡 6人心肺停止 1人安否不明 県発表（7/30 9:45）</a>／<a href="https://news.web.nhk/newsweb/na/na-k10015190301000">氷川町 建物倒壊 5人心肺停止</a></li>
+  <li>政府発表 NHK <a href="https://news.web.nhk/newsweb/na/na-k10015190421000">関連調査中含め死者28人に 木原官房長官（7/30）</a>／ロイター＝<a href="https://www.newsweekjapan.jp/articles/-/329824">ニューズウィーク日本版（7/30 11:35）</a>／熊本日日新聞 <a href="https://kumanichi.com/articles/2019639">県内避難者1万人超・避難所415カ所（7/30 10:26）</a></li>
+  <li>熊本県 <a href="https://www.pref.kumamoto.jp/soshiki/222/274487.html">災害対策本部会議</a>／NHK <a href="https://news.web.nhk/newsweb/na/na-k10015190441000">日本製紙八代工場 8人死亡 2人けが 1人安否不明（7/30 9:57）</a>／<a href="https://news.web.nhk/newsweb/na/na-k10015190301000">氷川町 建物倒壊 5人心肺停止</a></li>
   <li>熊本日日新聞 <a href="https://kumanichi.com/articles/2019563">停電約22,940戸（7/30 5:00・九電）</a>／<a href="https://kumanichi.com/articles/2019579">復旧見通し「確認中」に訂正（7/30 6:37）</a></li>
   <li>消防庁 被害報 <a href="https://www.fdma.go.jp/disaster/info/items/20260728kumamotojishin15.pdf">第15報（7/29 11:00）</a>／<a href="https://www.fdma.go.jp/disaster/info/items/20260728kumamotojishin14.pdf">第14報（7/29 7:00）</a></li>
   <li>内閣府 <a href="https://www.bousai.go.jp/updates/r8kumamoto_jishin/pdf/r8kumamoto_jishin_20260729.pdf">令和8年熊本地震に係る被害状況等について（7/29 7:00現在）</a></li>
   <li>首相官邸 <a href="https://www.kantei.go.jp/jp/kikikanri/earthquake20260728.html">令和8年熊本地震について</a>／国土交通省 <a href="https://www.mlit.go.jp/saigai/saigai_260728.html">災害・防災情報</a></li>
   <li>NHK <a href="https://news.web.nhk/newsweb/na/na-k10015189221000">熊本県まとめ（12人死亡・6人心肺停止）</a>／<a href="https://news.web.nhk/newsweb/na/na-k10015189721000">日本製紙八代工場 5人死亡</a>／<a href="https://news.web.nhk/newsweb/na/na-k10015189461000">首相「イオンモール熊本で3人死亡」</a>／<a href="https://news.web.nhk/newsweb/na/nb-5000029437">首相「関連調査中含め死者13人」</a></li>
-  <li>熊本日日新聞 <a href="https://kumanichi.com/articles/2018619">リアルタイム速報（7/29 23:37）</a>／日本経済新聞 <a href="https://www.nikkei.com/article/DGXZQOUD29B730Z20C26A7000000/">停電2万戸超</a>・<a href="https://www.nikkei.com/article/DGXZQOJC296OR0Z20C26A7000000/">九州新幹線 博多―熊本 30日再開めざす</a></li>
+  <li>熊本日日新聞 <a href="https://kumanichi.com/articles/2018619">リアルタイム速報（7/29 23:37）</a>／日本経済新聞 <a href="https://www.nikkei.com/article/DGXZQOUD29B730Z20C26A7000000/">停電2万戸超</a>・<a href="https://www.nikkei.com/article/DGXZQOJC296OR0Z20C26A7000000/">九州新幹線 博多―熊本 30日再開めざす</a>・<a href="https://www.nikkei.com/article/DGXZQOJC291I20Z20C26A7000000/">八代の都市ガス復旧8月3日見通し</a></li>
   <li>熊本県発表（避難9,872人・断水56,817戸、7/29 7:30）: <a href="https://news.livedoor.com/topics/detail/31938385/">ライブドアニュース</a>／TKUテレビ熊本（停電3.2万戸）: <a href="https://news.yahoo.co.jp/articles/746da0d16cf2f4be59e8ab2c24abc454f8e47e58">Yahoo!ニュース</a></li>
   <li>乗りものニュース <a href="https://trafficnews.jp/post/692852">九州新幹線 一部再開</a>／ウェザーニュース <a href="https://weathernews.jp/news/202607/292219quake/">天草・芦北 M5.8 震度5弱</a></li>
 </ul></div>
